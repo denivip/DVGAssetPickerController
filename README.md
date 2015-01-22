@@ -1,6 +1,6 @@
 # DVGAssetPickerController
 
-[![CI Status](http://img.shields.io/travis/Nikolay Morev/DVGAssetPickerController.svg?style=flat)](https://travis-ci.org/Nikolay Morev/DVGAssetPickerController)
+[![CI Status](http://img.shields.io/travis/denivip/DVGAssetPickerController.svg?style=flat)](https://travis-ci.org/Nikolay Morev/DVGAssetPickerController)
 [![Version](https://img.shields.io/cocoapods/v/DVGAssetPickerController.svg?style=flat)](http://cocoadocs.org/docsets/DVGAssetPickerController)
 [![License](https://img.shields.io/cocoapods/l/DVGAssetPickerController.svg?style=flat)](http://cocoadocs.org/docsets/DVGAssetPickerController)
 [![Platform](https://img.shields.io/cocoapods/p/DVGAssetPickerController.svg?style=flat)](http://cocoadocs.org/docsets/DVGAssetPickerController)
