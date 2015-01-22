@@ -12,7 +12,7 @@ We successfully use this component in our own [Together app](http://2gzr.com) fo
 
 Together helps you to organize, edit, cloud-store and share your videos on social networks, all in one app. Together is the easiest way to organize your video-library just the way you want it.
 
-And here are some screenshots of DVGAssetPickerController in action:
+And here is how DVGAssetPickerController looks in action:
 
 ![Selecting Three Photos](Screenshots/screencapture1.gif)
 
