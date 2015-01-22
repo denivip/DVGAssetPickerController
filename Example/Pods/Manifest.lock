@@ -1,0 +1,20 @@
+PODS:
+  - AHEasing (1.2)
+  - DVGAssetPickerController (0.1.0):
+    - TLLayoutTransitioning
+  - TLLayoutTransitioning (1.0.3):
+    - AHEasing
+
+DEPENDENCIES:
+  - DVGAssetPickerController (from `../`)
+
+EXTERNAL SOURCES:
+  DVGAssetPickerController:
+    :path: ../
+
+SPEC CHECKSUMS:
+  AHEasing: ecab36683ef8c3a9a925fb85e892d1335e750f31
+  DVGAssetPickerController: eb6ff01076e4343612ca665cf242b3f04d268005
+  TLLayoutTransitioning: 2939a6cf6464f5b8246b190dbfbd0b17a88ca877
+
+COCOAPODS: 0.35.0

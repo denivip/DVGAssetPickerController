@@ -1,0 +1,5 @@
+#import <Foundation/Foundation.h>
+@interface PodsDummy_Pods_DVGAssetPickerController_TLLayoutTransitioning : NSObject
+@end
+@implementation PodsDummy_Pods_DVGAssetPickerController_TLLayoutTransitioning
+@end
