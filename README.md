@@ -11,6 +11,8 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
+iOS 8.1
+
 ## Installation
 
 DVGAssetPickerController is available through [CocoaPods](http://cocoapods.org). To install
