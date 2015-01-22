@@ -20,7 +20,7 @@ it, simply add the following line to your Podfile:
 
 ## Author
 
-Nikolay Morev, kolyuchiy@gmail.com
+DENIVIP Group, support@denivip.ru
 
 ## License
 

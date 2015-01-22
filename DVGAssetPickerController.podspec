@@ -10,21 +10,19 @@
 Pod::Spec.new do |s|
   s.name             = "DVGAssetPickerController"
   s.version          = "0.1.0"
-  s.summary          = "A short description of DVGAssetPickerController."
+  s.summary          = "Assets Library media picker controller similar to Messages.app."
   s.description      = <<-DESC
-                       An optional longer description of DVGAssetPickerController
-
-                       * Markdown format.
-                       * Don't worry about the indent, we strip it!
+This is an attempt to reimplement Apple's UI from Messages.app for iOS where
+you can select photos from Camera Roll to attach to your imessage.
                        DESC
-  s.homepage         = "https://github.com/<GITHUB_USERNAME>/DVGAssetPickerController"
-  # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
+  s.homepage         = "https://github.com/denivip/DVGAssetPickerController"
+  s.screenshots      = "https://raw.githubusercontent.com/denivip/DVGAssetPickerController/master/Screenshots/screenshot1.jpg", "https://raw.githubusercontent.com/denivip/DVGAssetPickerController/master/Screenshots/screenshot2.jpg"
   s.license          = 'MIT'
-  s.author           = { "Nikolay Morev" => "kolyuchiy@gmail.com" }
-  s.source           = { :git => "https://github.com/<GITHUB_USERNAME>/DVGAssetPickerController.git", :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { "DENIVIP Group" => "support@denivip.ru" }
+  s.source           = { :git => "https://github.com/denivip/DVGAssetPickerController.git", :tag => s.version.to_s }
+  s.social_media_url = 'https://twitter.com/AppTogether'
 
-  s.platform     = :ios, '7.0'
+  s.platform     = :ios, '8.1'
   s.requires_arc = true
 
   s.source_files = 'Pod/Classes'
@@ -32,7 +30,7 @@ Pod::Spec.new do |s|
     'DVGAssetPickerController' => ['Pod/Assets/*.png']
   }
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.public_header_files = 'Pod/Classes/DVGAssetPickerViewController.h'
+  s.frameworks = 'UIKit', 'AssetsLibrary'
+  s.dependency 'TLLayoutTransitioning'
 end
