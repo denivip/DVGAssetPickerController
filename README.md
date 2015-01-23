@@ -8,11 +8,7 @@
 This is an attempt to reimplement Apple's UI from Messages.app for iOS where
 you can select photos from Camera Roll to attach to your imessage.
 
-We successfully use this component in our own [Together video editing app](https://2gzr.com) for iOS.
-
-Together helps you to organize, edit, cloud-store and share your videos on social networks, all in one app. Together is the easiest way to organize your video-library just the way you want it.
-
-And here is how DVGAssetPickerController looks in action:
+We successfully use this component in our own [Together video editing app](https://2gzr.com) for iOS where users could import photos using this component into video compilations. Here is how DVGAssetPickerController looks in action:
 
 ![Selecting Three Photos](Screenshots/screencapture1.gif)
 
