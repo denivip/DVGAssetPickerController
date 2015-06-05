@@ -257,6 +257,11 @@ UICollectionViewDelegateFlowLayout>
     // doesn't always work correctly (for example, indexPath.row from 1 to 2).
 
     UICollectionViewFlowLayout *layout = (id)self.collectionView.collectionViewLayout;
+    
+    if ([layout isKindOfClass:[UICollectionViewFlowLayout class]] == false) {
+        return;
+    }
+    
     UIEdgeInsets inset = self.collectionView.contentInset;
     UIEdgeInsets sectionInset = layout.sectionInset;
     CGRect frame = [layout layoutAttributesForItemAtIndexPath:indexPath].frame;
