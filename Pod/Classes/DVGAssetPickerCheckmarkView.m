@@ -21,19 +21,25 @@
 
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.bounds];
         imageView.contentMode = UIViewContentModeCenter;
-        imageView.image = [UIImage imageNamed:@"DVGAssetPickerController.bundle/BlueCheckUnselected"];
+        imageView.image = [UIImage imageNamed:@"BlueCheckUnselected" inBundle:[self imageBundle] compatibleWithTraitCollection:nil];
         [self addSubview:imageView];
         _imageView = imageView;
     }
     return self;
 }
 
+- (NSBundle*)imageBundle
+{
+    NSBundle *frameworkBundle = [NSBundle bundleForClass:self.class];
+    NSString *imageBundlePath = [frameworkBundle pathForResource:@"DVGAssetPickerController" ofType:@"bundle"];
+    return [NSBundle bundleWithPath:imageBundlePath];
+}
+
 - (void)setSelected:(BOOL)selected
 {
     _selected = selected;
-    self.imageView.image = (_selected
-                            ? [UIImage imageNamed:@"DVGAssetPickerController.bundle/BlueCheckSelected"]
-                            : [UIImage imageNamed:@"DVGAssetPickerController.bundle/BlueCheckUnselected"]);
+    NSString *imageName = _selected ? @"BlueCheckSelected" : @"BlueCheckUnselected";
+    self.imageView.image = [UIImage imageNamed:imageName inBundle:[self imageBundle] compatibleWithTraitCollection:nil];
 }
 
 @end
