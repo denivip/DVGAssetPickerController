@@ -415,6 +415,7 @@ UICollectionViewDelegateFlowLayout>
             DVGAssetPickerCollectionLayout *layout = (id)self.collectionView.collectionViewLayout;
             layout.showCheckmarks = self.collectionViewExpanded;
             [self.tableView reloadData];
+            [collectionView reloadData];
         }];
     }
     else {
