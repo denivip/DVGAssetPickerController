@@ -24,6 +24,7 @@ static CGFloat const kCollectionViewCollapsedHeight = 144.f;
 static CGFloat const kCollectionViewExpandedHeight = 308.f;
 static CGFloat const kCollectionViewPadding = 4.f;
 static NSTimeInterval const kExpandAnimationDuration = 0.3;
+static CGFloat const kDefaultDisabledSelectionAlpha = .6;
 
 @interface DVGAssetPickerViewController ()
 <UIViewControllerTransitioningDelegate,
@@ -359,6 +360,15 @@ UICollectionViewDelegateFlowLayout>
 
     UIImage *thumbnail = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
     cell.imageView.image = thumbnail;
+    
+    if ([self canSelectAnotherAsset] || [self.selectedAssets containsObject:asset])
+    {
+        cell.imageView.alpha = 1;
+    }
+    else
+    {
+        cell.imageView.alpha = kDefaultDisabledSelectionAlpha;
+    }
 
     return cell;
 }
@@ -373,6 +383,15 @@ UICollectionViewDelegateFlowLayout>
         DVGAssetPickerCheckmarkView *checkmark = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"Checkmark" forIndexPath:indexPath];
         checkmark.selected = [self.selectedAssets containsObject:asset];
         view = checkmark;
+        
+        if ([self canSelectAnotherAsset] || [self.selectedAssets containsObject:asset])
+        {
+            view.hidden = NO;
+        }
+        else
+        {
+            view.hidden = YES;
+        }
     }
 
     return view;
@@ -383,6 +402,8 @@ UICollectionViewDelegateFlowLayout>
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ALAsset *asset = self.assets[indexPath.row];
+    
+    if ([self canSelectAnotherAsset] == NO && ![self.selectedAssets containsObject:asset]) return;
 
     if (!self.collectionViewExpanded) {
         self.selectedAssets = [NSMutableSet setWithObject:asset];
@@ -394,6 +415,7 @@ UICollectionViewDelegateFlowLayout>
             DVGAssetPickerCollectionLayout *layout = (id)self.collectionView.collectionViewLayout;
             layout.showCheckmarks = self.collectionViewExpanded;
             [self.tableView reloadData];
+            [collectionView reloadData];
         }];
     }
     else {
@@ -448,6 +470,13 @@ UICollectionViewDelegateFlowLayout>
 {
     return [[DVGAssetPickerPresentationController alloc] initWithPresentedViewController:presented
                                                                   presentingViewController:presenting];
+}
+
+#pragma mark - Helpers
+
+- (BOOL)canSelectAnotherAsset
+{
+    return self.maxNumberOfAssets == 0 || self.selectedAssets.count < self.maxNumberOfAssets;
 }
 
 @end
