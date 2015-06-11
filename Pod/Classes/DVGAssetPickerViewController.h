@@ -33,5 +33,6 @@ typedef NS_ENUM(NSUInteger, DVGAssetPickerMenuItem) {
 - (void)cancel;
 @property (nonatomic, weak) id<DVGAssetPickerDelegate> delegate;
 @property (strong, nonatomic) ALAssetsLibrary *assetsLibrary;
+@property (nonatomic) NSUInteger maxNumberOfAssets;
 
 @end

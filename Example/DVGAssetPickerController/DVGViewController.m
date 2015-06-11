@@ -57,6 +57,7 @@ UIImagePickerControllerDelegate>
 {
     DVGAssetPickerViewController *picker = [[DVGAssetPickerViewController alloc] init];
     picker.delegate = self;
+    picker.maxNumberOfAssets = 2;
     [self presentViewController:picker animated:YES completion:nil];
 }
 
