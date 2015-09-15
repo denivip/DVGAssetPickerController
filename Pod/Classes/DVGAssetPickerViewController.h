@@ -27,11 +27,22 @@ typedef NS_ENUM(NSUInteger, DVGAssetPickerMenuItem) {
 
 @end
 
+
+@protocol DVGAssetPickerDataSource <NSObject>
+
+@optional
+- (NSDictionary *)contentPickerViewController:(DVGAssetPickerViewController *)controller
+                    textAttributesForMenuItem:(DVGAssetPickerMenuItem)menuItem;
+
+@end
+
+
 @interface DVGAssetPickerViewController : UIViewController
 
 - (instancetype)init;
 - (void)cancel;
 @property (nonatomic, weak) id<DVGAssetPickerDelegate> delegate;
+@property (nonatomic, weak) id<DVGAssetPickerDataSource> dataSource;
 @property (strong, nonatomic) ALAssetsLibrary *assetsLibrary;
 
 @end

@@ -287,33 +287,43 @@ UICollectionViewDelegateFlowLayout>
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    DVGAssetPickerMenuItem item = (DVGAssetPickerMenuItem)indexPath.row;
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-    switch ((DVGAssetPickerMenuItem)indexPath.row) {
+    NSString * title;
+    
+    switch (item) {
         case DVGAssetPickerMenuItemPhotoLibrary: {
             NSInteger selectedCount = [self.selectedAssets count];
             if (!self.collectionViewExpanded || selectedCount == 0) {
-                cell.textLabel.text = NSLocalizedString(@"Photo Library", nil);
+                title = NSLocalizedString(@"Photo Library", nil);
             }
             else if (selectedCount == 1) {
-                cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photo", nil), selectedCount];
+                title = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photo", nil), selectedCount];
             }
             else {
-                cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photos", nil), selectedCount];
+                title = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photos", nil), selectedCount];
             }
             break;
         }
 
         case DVGAssetPickerMenuItemCamera:
-            cell.textLabel.text = NSLocalizedString(@"Take Photo", nil);
+            title = NSLocalizedString(@"Take Photo", nil);
             break;
 
         case DVGAssetPickerMenuItemCancel:
-            cell.textLabel.text = NSLocalizedString(@"Cancel", nil);
+            title = NSLocalizedString(@"Cancel", nil);
             break;
     }
 
     cell.textLabel.textAlignment = NSTextAlignmentCenter;
     cell.textLabel.textColor = cell.tintColor;
+    
+    if ([self.dataSource respondsToSelector:@selector(contentPickerViewController:textAttributesForMenuItem:)]) {
+        NSDictionary* attributes = [self.dataSource contentPickerViewController:self textAttributesForMenuItem:item];
+        cell.textLabel.attributedText = [[NSAttributedString alloc] initWithString:title attributes:attributes];
+    }else {
+        cell.textLabel.text = title;
+    }
 
     return cell;
 }
