@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+@import Photos;
+
+NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, DVGAssetPickerMenuItem) {
     DVGAssetPickerMenuItemPhotoLibrary,
@@ -20,7 +22,7 @@ typedef NS_ENUM(NSUInteger, DVGAssetPickerMenuItem) {
 @protocol DVGAssetPickerDelegate <NSObject>
 
 - (void)contentPickerViewController:(DVGAssetPickerViewController *)controller
-                    didSelectAssets:(NSArray *)assets;
+                    didSelectAssets:(NSArray<PHAsset*> *)assets;
 - (void)contentPickerViewController:(DVGAssetPickerViewController *)controller
                     clickedMenuItem:(DVGAssetPickerMenuItem)menuItem;
 - (void)contentPickerViewControllerDidCancel:(DVGAssetPickerViewController *)controller;
@@ -41,8 +43,10 @@ typedef NS_ENUM(NSUInteger, DVGAssetPickerMenuItem) {
 
 - (instancetype)init;
 - (void)cancel;
-@property (nonatomic, weak) id<DVGAssetPickerDelegate> delegate;
-@property (nonatomic, weak) id<DVGAssetPickerDataSource> dataSource;
-@property (strong, nonatomic) ALAssetsLibrary *assetsLibrary;
+@property (nonatomic, weak) _Nullable id<DVGAssetPickerDelegate> delegate;
+@property (nonatomic, weak) _Nullable id<DVGAssetPickerDataSource> dataSource;
+@property (strong, nonatomic) PHPhotoLibrary * photoLibrary;
 
 @end
+
+NS_ASSUME_NONNULL_END

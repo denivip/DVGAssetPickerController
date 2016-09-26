@@ -11,5 +11,6 @@
 @interface DVGAssetPickerCollectionViewCell : UICollectionViewCell
 
 @property (weak, nonatomic) UIImageView *imageView;
+@property (nonatomic) NSDictionary *userInfo;
 
 @end
