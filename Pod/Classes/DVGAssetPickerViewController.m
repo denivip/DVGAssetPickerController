@@ -35,8 +35,8 @@ UICollectionViewDelegateFlowLayout>
 @property (weak, nonatomic) UITableView *tableView;
 @property (weak, nonatomic) UICollectionView *collectionView;
 @property (weak, nonatomic) NSLayoutConstraint *collectionHeightConstraint;
-@property (copy, nonatomic) NSArray *assets;
-@property (strong, nonatomic) NSMutableSet *selectedAssets;
+@property (copy, nonatomic) PHFetchResult<PHAsset *> *assets;
+@property (strong, nonatomic) NSMutableSet<PHAsset *> *selectedAssets;
 @property (nonatomic) BOOL collectionViewExpanded;
 
 @end
@@ -49,6 +49,7 @@ UICollectionViewDelegateFlowLayout>
         self.modalPresentationStyle = UIModalPresentationCustom;
         self.transitioningDelegate = self;
         self.automaticallyAdjustsScrollViewInsets = YES;
+        self.photoLibrary = [PHPhotoLibrary sharedPhotoLibrary];
     }
     return self;
 }
@@ -56,8 +57,6 @@ UICollectionViewDelegateFlowLayout>
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    self.assetsLibrary = [[ALAssetsLibrary alloc] init];
 
     self.view.backgroundColor = [UIColor whiteColor];
 
@@ -147,38 +146,21 @@ UICollectionViewDelegateFlowLayout>
 
 #pragma mark -
 
-- (NSArray *)fetchAllAssetsSynchronously
+- (PHFetchResult<PHAsset *> *)fetchAllAssetsSynchronously
 {
-    NSMutableArray *assets = [NSMutableArray array];
-    dispatch_group_t dispatchGroup = dispatch_group_create();
+    PHFetchResult * result = [PHAssetCollection
+                              fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                              subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
+                              options:nil];
+    if (result.count == 0) {
+        return @[];
+    }
 
-    dispatch_group_enter(dispatchGroup);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __block NSInteger maxCount = 50;
-        [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stopGroups) {
-            if (group) {
-                [group enumerateAssetsWithOptions:NSEnumerationReverse usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stopAssets) {
-                    if (result &&
-                        [[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypePhoto]) {
-                        [assets addObject:result];
-                        maxCount--;
-                        if (maxCount == 0) {
-                            *stopAssets = *stopGroups = YES;
-                        }
-                    }
-                }];
-            }
-            else {
-                dispatch_group_leave(dispatchGroup);
-            }
-        } failureBlock:^(NSError *error) {
-            // XXX Handle error
-            dispatch_group_leave(dispatchGroup);
-        }];
-    });
-    dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
-
-    return assets;
+    PHAssetCollection * collection = result.firstObject;
+    PHFetchOptions * options = [[PHFetchOptions alloc] init];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %i", PHAssetMediaTypeImage];
+    return [PHAsset fetchAssetsInAssetCollection:collection options:options];
 }
 
 - (void)cancel
@@ -257,11 +239,11 @@ UICollectionViewDelegateFlowLayout>
     // doesn't always work correctly (for example, indexPath.row from 1 to 2).
 
     UICollectionViewFlowLayout *layout = (id)self.collectionView.collectionViewLayout;
-    
+
     if ([layout isKindOfClass:[UICollectionViewFlowLayout class]] == false) {
         return;
     }
-    
+
     UIEdgeInsets inset = self.collectionView.contentInset;
     UIEdgeInsets sectionInset = layout.sectionInset;
     CGRect frame = [layout layoutAttributesForItemAtIndexPath:indexPath].frame;
@@ -287,33 +269,43 @@ UICollectionViewDelegateFlowLayout>
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    DVGAssetPickerMenuItem item = (DVGAssetPickerMenuItem)indexPath.row;
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-    switch ((DVGAssetPickerMenuItem)indexPath.row) {
+    NSString * title;
+
+    switch (item) {
         case DVGAssetPickerMenuItemPhotoLibrary: {
             NSInteger selectedCount = [self.selectedAssets count];
             if (!self.collectionViewExpanded || selectedCount == 0) {
-                cell.textLabel.text = NSLocalizedString(@"Photo Library", nil);
+                title = NSLocalizedString(@"Photo Library", nil);
             }
             else if (selectedCount == 1) {
-                cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photo", nil), selectedCount];
+                title = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photo", nil), selectedCount];
             }
             else {
-                cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photos", nil), selectedCount];
+                title = [NSString stringWithFormat:NSLocalizedString(@"Select %d Photos", nil), selectedCount];
             }
             break;
         }
 
         case DVGAssetPickerMenuItemCamera:
-            cell.textLabel.text = NSLocalizedString(@"Take Photo", nil);
+            title = NSLocalizedString(@"Take Photo", nil);
             break;
 
         case DVGAssetPickerMenuItemCancel:
-            cell.textLabel.text = NSLocalizedString(@"Cancel", nil);
+            title = NSLocalizedString(@"Cancel", nil);
             break;
     }
 
     cell.textLabel.textAlignment = NSTextAlignmentCenter;
     cell.textLabel.textColor = cell.tintColor;
+
+    if ([self.dataSource respondsToSelector:@selector(contentPickerViewController:textAttributesForMenuItem:)]) {
+        NSDictionary* attributes = [self.dataSource contentPickerViewController:self textAttributesForMenuItem:item];
+        cell.textLabel.attributedText = [[NSAttributedString alloc] initWithString:title attributes:attributes];
+    }else {
+        cell.textLabel.text = title;
+    }
 
     return cell;
 }
@@ -354,11 +346,30 @@ UICollectionViewDelegateFlowLayout>
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    ALAsset *asset = self.assets[indexPath.row];
+    PHAsset *asset = self.assets[indexPath.row];
     DVGAssetPickerCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
 
-    UIImage *thumbnail = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
-    cell.imageView.image = thumbnail;
+
+    // cancel previous image fetch if the cell is being reused
+    if (cell.userInfo && cell.userInfo[@"request_id"]) {
+        PHImageRequestID requestID = [cell.userInfo[@"request_id"] intValue];
+        [[PHImageManager defaultManager] cancelImageRequest:requestID];
+    }
+
+
+    CGRect screenSize = [[UIScreen mainScreen] nativeBounds];
+    CGFloat size1D = MAX(screenSize.size.width, screenSize.size.height);
+    CGSize targetSize = CGSizeMake(size1D, size1D);
+
+    PHImageRequestOptions * options = [[PHImageRequestOptions alloc] init];
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+    options.resizeMode = PHImageRequestOptionsResizeModeFast;
+    options.networkAccessAllowed = NO;
+
+    PHImageRequestID requestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFit options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        cell.imageView.image = result;
+    }];
+    cell.userInfo = @{@"request_id": @(requestID)};
 
     return cell;
 }
@@ -369,7 +380,7 @@ UICollectionViewDelegateFlowLayout>
 {
     UICollectionReusableView *view;
     if ([kind isEqualToString:DVGAssetPickerSupplementaryKindCheckmark]) {
-        ALAsset *asset = self.assets[indexPath.row];
+        PHAsset *asset = self.assets[indexPath.row];
         DVGAssetPickerCheckmarkView *checkmark = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"Checkmark" forIndexPath:indexPath];
         checkmark.selected = [self.selectedAssets containsObject:asset];
         view = checkmark;
@@ -382,7 +393,7 @@ UICollectionViewDelegateFlowLayout>
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    ALAsset *asset = self.assets[indexPath.row];
+    PHAsset *asset = self.assets[indexPath.row];
 
     if (!self.collectionViewExpanded) {
         self.selectedAssets = [NSMutableSet setWithObject:asset];
@@ -426,14 +437,12 @@ UICollectionViewDelegateFlowLayout>
                   layout:(UICollectionViewLayout*)collectionViewLayout
   sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    ALAsset *asset = self.assets[indexPath.row];
-    UIImage *thumbnail = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
+    PHAsset *asset = self.assets[indexPath.row];
 
     CGFloat height = [self collectionViewHeight] - kCollectionViewPadding * 2;
     CGFloat maxWidth = CGRectGetWidth(self.view.bounds) - kCollectionViewPadding * 2;
-    CGFloat width = (thumbnail
-                     ? thumbnail.size.width * height / thumbnail.size.height
-                     : height);
+    CGFloat width = (CGFloat)asset.pixelWidth * height / (CGFloat)asset.pixelHeight;
+
     width = MIN(maxWidth, width);
     CGSize size = CGSizeMake(width, height);
 
